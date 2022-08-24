@@ -207,7 +207,7 @@ class FeatExtract(nn.Module):
     Feature extraction block based on: "Hatamizadeh et al.,
     Global Context Vision Transformers <https://arxiv.org/abs/2206.09959>"
     """
-    def __init__(self, dim, keep_dim=False):
+    def __init__(self, dim: int, keep_dim: bool = False):
         """
         Args:
             dim: feature size dimension.
@@ -222,11 +222,13 @@ class FeatExtract(nn.Module):
             SE(dim, dim),
             nn.Conv2d(dim, dim, 1, 1, 0, bias=False),
         )
-        if not keep_dim:
-            self.pool = nn.MaxPool2d(kernel_size=3, stride=2, padding=1)
+        #if not keep_dim:
+        self.pool = nn.MaxPool2d(kernel_size=3, stride=2, padding=1)
+        #else: self.pool = None
+        
         self.keep_dim = keep_dim
 
-    def forward(self, x):
+    def forward(self, x: torch.Tensor):
         x = x.contiguous()
         x = x + self.conv(x)
         if not self.keep_dim:
@@ -516,6 +518,7 @@ class GlobalQueryGen(nn.Module):
         self.dim_head = dim // self.num_heads
 
     def forward(self, x):
+
         x = _to_channel_last(self.to_q_global(x))
         B = x.shape[0]
         x = x.reshape(B, 1, self.N, self.num_heads, self.dim_head).permute(0, 1, 3, 2, 4)
